@@ -1,0 +1,38 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Riot Attribute</title>
+</head>
+<body>
+
+
+    <div id="my-div"></div>
+    <my-tag my-attr="name"></my-tag>
+    <my-first my-attr></my-first>
+
+    <script src="public/tags/my-tag.tag" type="riot/tag"></script>
+    <script src="public/tags/my-first.tag" type="riot/tag"></script>
+    <!-- Import Riot -->
+    <script src="https://cdn.jsdelivr.net/riot/3.0/riot+compiler.min.js"></script>
+    <!-- Import Riot Attribute -->
+    <script src="public/riot-attribute.js"></script>
+
+    <script>
+
+        riot.attr('my-attr', {
+            init: function(element, value, tag){
+                element.innerHTML = "Change content by custom attribute"
+                console.log(this.expr)
+            },
+            update: function(element, value, tag){
+                console.log('my-attr update', element, value, tag)
+            }
+        })
+
+        riot.compile(function(){
+            riot.mount('*')
+        });
+    </script>
+
+</body>
+</html>
