@@ -7,8 +7,7 @@
 
 
     <div id="my-div"></div>
-    <my-tag my-attr="name"></my-tag>
-    <my-first my-attr></my-first>
+    <my-first my-attr>blabla</my-first>
 
     <script src="public/tags/my-tag.tag" type="riot/tag"></script>
     <script src="public/tags/my-first.tag" type="riot/tag"></script>
@@ -19,19 +18,17 @@
 
     <script>
 
-        riot.attr('my-attr', {
-            init: function(element, value, tag){
-                element.innerHTML = "Change content by custom attribute"
-                console.log(this.expr)
-            },
-            update: function(element, value, tag){
-                console.log('my-attr update', element, value, tag)
+        riot.attr('my-attr', function(element, fn){
+            element.onclick = () => {
+                console.log(this.tag)
             }
         })
-
         riot.compile(function(){
             riot.mount('*')
+            riot.mountAttr('my-attr, my-other-attr')
         });
+
+
     </script>
 
 </body>
