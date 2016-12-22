@@ -34,7 +34,7 @@ const compileAttrs = function() {
 
             impl.tmpl = impl.tmpl.replace(regAttr, function(){
                 nextId++
-                let ref = `__attr__id__${nextId}`;
+                let ref = '__attr__id__'+nextId;
 
                 implAttrs.push({
                     name: attr.name,
@@ -42,7 +42,7 @@ const compileAttrs = function() {
                     ref: ref,
                     expr: arguments[1] || arguments[2] || arguments[3] || ""
                 })
-                return `ref="${ref}"`;
+                return 'ref="'+ref+'"';
             })
 
         })
