@@ -42,7 +42,7 @@ const compileAttrs = function() {
                     ref: ref,
                     expr: arguments[1] || arguments[2] || arguments[3] || ""
                 })
-                return `ref="${ref}"`
+                return `ref="${ref}"`;
             })
 
         })
