@@ -1,12 +1,12 @@
-const cacheMount = riot.mount,
-    util = riot.util
-
+const util = riot.util
 const REGEX_ATTR = '=?(?:"([^"]*)"|\'([^\']*)\'|({[^}]*}))?'
 
-let ready, __ATTR_IMPL = {}, __CACHE_ATTR = []
+let __ATTR_IMPL = {}, __CACHE_ATTR = []
 
 const getImplTagNames = () => {
     let tagNames = util.tags.selectTags().split(',')
+    if(!tagNames[0])
+        return null
     return tagNames.filter((tagName) => {
         if(!/\[(.*)\]/.test(tagName))
             return true
@@ -20,51 +20,59 @@ const getImplTags = (tagNames) => {
     })
 }
 
-const compileAttrs = function() {
-    let tagNames = getImplTagNames()
-    let impls = getImplTags(tagNames)
+const compileAttr = (attr, impl) => {
 
-    impls.forEach((impl) => {
-        let nextId = -1
-        let implAttrs = [];
+    let nextId = -1
+    let implAttrs = []
+    let regAttr = new RegExp(attr.name+REGEX_ATTR, 'g')
 
-        Object.keys(__ATTR_IMPL).forEach((key) => {
-            let attr = __ATTR_IMPL[key]
-            let regAttr = new RegExp(attr.name+REGEX_ATTR, 'g')
+    impl.tmpl = impl.tmpl.replace(regAttr, function(){
+        nextId++
+        let ref = '__'+attr.name+'__id__'+nextId
 
-            impl.tmpl = impl.tmpl.replace(regAttr, function(){
-                nextId++
-                let ref = '__attr__id__'+nextId;
-
-                implAttrs.push({
-                    name: attr.name,
-                    constructor: attr.constructor,
-                    ref: ref,
-                    expr: arguments[1] || arguments[2] || arguments[3] || ""
-                })
-                return 'ref="'+ref+'"';
-            })
-
+        implAttrs.push({
+            name: attr.name,
+            constructor: attr.constructor,
+            ref: ref,
+            expr: arguments[1] || arguments[2] || arguments[3] || ""
         })
+        return ref
+    })
 
-        let cachefn = impl.fn
 
-        impl.fn = function(opts){
+    let cachefn = impl.fn
 
-            if(!implAttrs.length){
-                return cachefn.apply(this, arguments)
-            }
+    impl.fn = function(opts){
 
-            this.on('mount', function () {
-                implAttrs.forEach((attr) =>
-                 new Attr(attr, this.refs[attr.ref], this))
-            })
-
+        if(!implAttrs.length){
             return cachefn.apply(this, arguments)
         }
 
+        this.on('mount', function () {
+            console.log(implAttrs)
+            implAttrs.forEach((attr) =>{
+                let el = document.querySelector('['+attr.ref+']')
+                el.removeAttribute(attr.ref)
+                new Attr(attr, el, this)
+            })
+        })
+
+        return cachefn.apply(this, arguments)
+    }
+    
+    return impl;
+}
+
+
+const compileAttrs = (impl) => {
+    let nextId = -1
+    let implAttrs = [];
+
+    Object.keys(__ATTR_IMPL).forEach((key) => {
+        impl = compileAttr(__ATTR_IMPL[key], impl)
     })
 
+    return impl
 }
 
 const selectAttrs = (attrs, tag) => {
@@ -84,41 +92,39 @@ const selectAttrs = (attrs, tag) => {
     })
 }
 
+class Attr {
+    constructor(attr, el, tag){
+        riot.observable(this)
+        this.value = util.tmpl(attr.expr, tag || {})
+        this.element = el
 
-const Attr = function(attr, el, tag){
-    let $inst = {},
-        value = util.tmpl(attr.expr, tag || {})
+        if(tag)
+            this.tag = tag
 
-    if(tag)
-        $inst.tag = tag
+        this._attr = attr
+        this.root = el
 
-    $inst._attr = attr
-    $inst.root = el
+        if(util.check.isFunction(this.value))
+            el.setAttribute(attr.name, '')
+        else
+            el.setAttribute(attr.name, this.value)
 
-    if(util.check.isFunction(value))
-        el.setAttribute(attr.name, '')
-    else
-        el.setAttribute(attr.name, value)
+        attr.constructor.apply(this,[el,this.value])
 
-    attr.constructor.apply(
-        riot.observable($inst),
-        [el,value]
-    )
+        __CACHE_ATTR.push(this)
 
-    __CACHE_ATTR.push($inst)
+        if(!tag)
+            return
 
-    if(!tag)
-        return
+        tag.on('update', () => {
+            this.trigger('update', this.value)
+        })
 
-    tag.on('update', function () {
-        let value = util.tmpl(attr.expr, tag)
-        $inst.trigger('update', value)
-    })
+        tag.on('unmount', () => {
+            this.trigger('unmount', this.value)
+        })
+    }
 
-    tag.on('unmount', function () {
-        let value = util.tmpl(attr.expr, tag)
-        $inst.trigger('unmount', value)
-    })
 }
 
 riot.mountAttr = function(selector){
@@ -150,20 +156,32 @@ riot.mountAttr = function(selector){
     })
 }
 
-riot.mount = function() {
-    if(!ready){
-        ready = true
-        compileAttrs.apply(null,arguments)
-    }
-
-    var tags = cacheMount.apply(riot, arguments);
-
-    return tags;
+const cacheTag2 = riot.tag2;
+riot.tag2 = function(name, tmpl, css, attrs, fn){
+    fn = fn || function(){}
+    let impl = compileAttrs({name, tmpl, css, attrs, fn})
+    cacheTag2.apply(riot,
+        Object.keys(impl).map(key => impl[key]))
+    return name;
 }
 
+const cacheTag = riot.tag;
+riot.tag = function(name, tmpl, css, attrs, fn){
+    fn = fn || function(){}
+    let impl = compileAttrs({name, tmpl, css, attrs, fn})
+    cacheTag.apply(riot,
+        Object.keys(impl).map(key => impl[key]))
+    return name;
+}
 
 riot.attr = (name, constructor) => {
     __ATTR_IMPL[name] = {name, constructor}
+    let tagNames = getImplTagNames()
+    if(!tagNames)
+        return
+
+    let impls = getImplTags(tagNames)
+    impls.forEach((impl) => compileAttr(__ATTR_IMPL[name], impl))
 }
 
 export default riot.attr
