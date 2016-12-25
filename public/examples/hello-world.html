@@ -1,0 +1,16 @@
+
+<div my-attr='World'>
+  Hello { my }!
+</div>
+
+<script>
+
+  riot.attr('my-attr', {
+    init: function(el, attr){
+      this.my = attr.value
+    }
+  })
+
+  riot.mountAttr('my-attr')
+
+</script>

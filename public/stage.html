@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Riot live editor</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  </head>
+
+  <body style="margin: 0; ">
+    <div id="root" style="overflow: scroll; height: 340px; max-height: 340px;"></div>
+    <!-- scripts we need -->
+    <script src="https://rawgit.com/riot/riot/master/riot%2Bcompiler.js"></script>
+    <script src="/public/riot-attribute.js"></script>
+    <script>
+        function globalEval (js, url) {
+            var
+              node = document.createElement('script'),
+              root = document.documentElement
+
+            node.text = js
+            root.appendChild(node)
+            root.removeChild(node)
+        }
+
+        function insertAndExecute(id, html) {
+            document.getElementById(id).innerHTML = html
+            var scripts = document
+                            .getElementById(id)
+                            .getElementsByTagName('script')
+
+            for (var i = 0; i < scripts.length; i++) {
+                if(scripts[i].type != "riot/tag" && !scripts[i].src)
+                    globalEval(scripts[i].text)
+            }
+        }
+        window.addEventListener('message', function(e) {
+            insertAndExecute('root', decodeURIComponent(e.data))
+        }, false)
+    </script>
+  </body>
+
+</html>

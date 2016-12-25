@@ -1,0 +1,29 @@
+<script type='riot/tag'>
+  <my-tag>
+    <button my-attr={ click }>{ name }</button>
+    this.name = ''
+    click(){
+      this.name = 'Update'
+    }
+  </my-tag>
+</script>
+
+<my-tag></my-tag>
+
+<script>
+
+  riot.attr('my-attr', {
+    init: function(el, attr){
+      var self = this
+      self.name = 'Click Here'
+
+      el.addEventListener("click", function(){
+        attr.value()
+        self.update()
+      })
+    }
+  })
+
+  riot.mount('my-tag')
+
+</script>

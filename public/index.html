@@ -1,0 +1,52 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Riot Attribute</title>
+</head>
+<body style="margin: 0">
+
+    <div class="example">
+        <h3>Hello Word!</h3>
+        <live-editor src="examples/hello-world.html"></live-editor>
+    </div>
+
+    <div class="example">
+        <h3>Multiple Attributes</h3>
+        <live-editor src="examples/multiple-attributes.html"></live-editor>
+    </div>
+
+    <div class="example">
+        <h3>Attribute in tag</h3>
+        <live-editor src="examples/attribute-in-tag.html"></live-editor>
+    </div>
+
+    <style>
+        .example {
+            width: 90%;
+            display: block;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        .example .ace_editor {
+            overflow: scroll;
+            max-height: 340px;
+        }
+        .example live-editor{
+            height: 400px;
+        }
+    </style>
+
+    <script type="riot/tag" src="live-editor.tag"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.2/ace.js"></script>
+    <script src="https://cdn.jsdelivr.net/riot/3.0/riot+compiler.js"></script>
+    <!-- Import Riot Attribute -->
+    <script src="riot-attribute.js"></script>
+
+    <script>
+        riot.compile(function(){
+            riot.mount('live-editor')
+        })
+    </script>
+
+</body>
+</html>
