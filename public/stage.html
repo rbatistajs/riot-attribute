@@ -5,10 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
   </head>
 
-  <body style="margin: 0; ">
-    <div id="root" style="overflow: scroll; height: 340px; max-height: 340px;"></div>
+  <body>
+    <div id="root"></div>
+    <div id="rootVirtual"></div>
     <!-- scripts we need -->
-    <script src="https://rawgit.com/riot/riot/master/riot%2Bcompiler.js"></script>
+    <script src="../dist/riot%2Bcompiler.js"></script>
     <script src="/public/riot-attribute.js"></script>
     <script>
         function globalEval (js, url) {

@@ -3,7 +3,7 @@
   <!-- the empty line causes editor start from second line (on purpose) -->
   <section></section>
 
-  <iframe src="stage.html" ref="preview" scrolling="no"></iframe>
+  <iframe src="../stage.html" ref="preview" scrolling="no"></iframe>
 
   <script>
     var self = this

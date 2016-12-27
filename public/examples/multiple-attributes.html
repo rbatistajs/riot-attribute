@@ -1,22 +1,21 @@
 
-<div my-attr='attr1' my-attr2='attr2'>
-  { attr1 } { attr2 }!
+<div my-attr='Attr1' my-attr2='Attr2'>
+  { attr1 } ---- { attr2 }!
 </div>
 
 <script>
 
   riot.attr('my-attr', {
     init: function(el, attr){
-      this.attr1 = attr.value
+      this.attr1 = 'Print ' + attr.value
     }
   })
 
   riot.attr('my-attr2', {
     init: function(el, attr){
-      this.attr2 = attr.value
+      this.attr2 = 'Print ' + attr.value
     }
   })
-
 
   riot.mountAttr('my-attr, my-attr2')
 

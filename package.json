@@ -8,6 +8,7 @@
   "license": "MIT",
   "scripts": {
     "start": "webpack-dev-server --progress --colors -d --port 3000",
+    "build": "rm -rf dist/ && webpack --config webpack.build.js",
     "test": "karma start"
   },
   "keywords": [
